@@ -1,0 +1,18 @@
+[package]
+categories = ["development-tools"]
+description = "A fast, robust but imperfect token-based JS code prettifier, written in Rust, that outputs JS source maps"
+documentation = "https://docs.rs/prettify-js"
+keywords = ["js", "javscript", "prettify", "source-map"]
+license = "BSD-2-Clause"
+name = "prettify-js"
+readme = "README.md"
+repository = "https://github.com/Pernosco/prettify-js"
+version = "0.1.0"
+authors = ["Robert O'Callahan <robert@ocallahan.org>"]
+edition = "2018"
+
+[dependencies]
+log = "0.4"
+ress = "0.9"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
