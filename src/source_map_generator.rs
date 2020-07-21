@@ -16,6 +16,7 @@ pub struct SourceCoord {
 }
 
 /// Points that correspond in the original/generated source code.
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct SourceMapping {
     /// Coordinate in the "original source code"
     pub from: SourceCoord,

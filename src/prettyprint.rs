@@ -314,7 +314,7 @@ impl Writer {
 
 fn append_newline(token: &Tok, stack: &Stack, out: &mut Writer) -> bool {
     if is_line_delimiter(token, stack) {
-        out.write("\n", token.start);
+        out.write_new("\n");
         return true;
     }
     false
@@ -468,21 +468,20 @@ fn prepend_white_space(
     out: &mut Writer,
 ) {
     if let Some(&Token::Punct(Punct::CloseBrace)) = last_token.as_ref().map(|v| &v.token) {
-        let start = last_token.as_ref().unwrap().start;
         match &token.token {
             &Token::Keyword(Keyword::While(_)) => {
                 if let Some(&Token::Keyword(Keyword::Do(_))) = top_token(stack) {
-                    out.write(" ", start);
+                    out.write_new(" ");
                     added_space = true;
                 } else {
-                    out.write("\n", start);
+                    out.write_new("\n");
                     added_newline = true;
                 }
             }
             &Token::Keyword(Keyword::Else(_))
             | &Token::Keyword(Keyword::Catch(_))
             | &Token::Keyword(Keyword::Finally(_)) => {
-                out.write(" ", start);
+                out.write_new(" ");
                 added_space = true;
             }
             &Token::Punct(Punct::OpenParen)
@@ -492,7 +491,7 @@ fn prepend_white_space(
             | &Token::Punct(Punct::Period)
             | &Token::Template(_) => (),
             _ => {
-                out.write("\n", start);
+                out.write_new("\n");
                 added_newline = true;
             }
         }
@@ -501,14 +500,14 @@ fn prepend_white_space(
     match &token.token {
         &Token::Punct(Punct::Colon) => {
             if let Some(&Token::Punct(Punct::QuestionMark)) = top_token(stack) {
-                out.write(" ", last_token.as_ref().unwrap().start);
+                out.write_new(" ");
                 added_space = true;
             }
         }
         &Token::Keyword(Keyword::Else(_)) => match last_token.as_ref().map(|v| &v.token) {
             Some(&Token::Punct(Punct::CloseBrace)) | Some(&Token::Punct(Punct::Period)) => (),
             Some(_) => {
-                out.write(" ", last_token.as_ref().unwrap().start);
+                out.write_new(" ");
                 added_space = true;
             }
             None => (),
@@ -518,7 +517,7 @@ fn prepend_white_space(
 
     if is_asi(token, last_token) || decrements_indent(token, stack) {
         if !added_newline {
-            out.write("\n", last_token.as_ref().unwrap().start);
+            out.write_new("\n");
             added_newline = true;
         }
     }
@@ -533,12 +532,8 @@ fn prepend_white_space(
             }
         }
     } else if !added_space && need_space_after(token, last_token) {
-        out.write(" ", last_token.as_ref().unwrap().start);
+        out.write_new(" ");
     }
-}
-
-fn add_token(token: &Tok, out: &mut Writer) {
-    out.write(&token.token.to_string(), token.start);
 }
 
 fn belongs_on_stack(token: &Tok) -> bool {
@@ -705,7 +700,9 @@ pub fn prettyprint(source: &str) -> (String, Vec<SourceMapping>) {
             indent_level,
             &mut out,
         );
-        add_token(&token, &mut out);
+
+        out.write(&token.token.to_string(), token.start);
+
         added_space = false;
         let mut same_line_comment = false;
         if let Some(&Token::Comment(_)) = next_token.as_ref().map(|v| &v.token) {
