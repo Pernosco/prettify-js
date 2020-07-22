@@ -284,15 +284,7 @@ impl Writer {
         });
         self.update_current(s);
     }
-    fn write_indent(&mut self, level: u32, from: SourceCoord) {
-        if level == 0 {
-            return;
-        }
-        self.last_from = from;
-        self.mappings.push(SourceMapping {
-            from: self.current,
-            to: self.last_from,
-        });
+    fn write_indent(&mut self, level: u32) {
         let count = level * self.indent;
         for _ in 0..count {
             self.buffer.push(' ');
@@ -525,10 +517,10 @@ fn prepend_white_space(
     if added_newline {
         match &token.token {
             &Token::Keyword(Keyword::Case(_)) | &Token::Keyword(Keyword::Default(_)) => {
-                out.write_indent(max(1, indent_level) - 1, token.start);
+                out.write_indent(max(1, indent_level) - 1);
             }
             _ => {
-                out.write_indent(indent_level, token.start);
+                out.write_indent(indent_level);
             }
         }
     } else if !added_space && need_space_after(token, last_token) {
@@ -570,7 +562,7 @@ fn should_pop_stack(token: &Tok, stack: &Stack) -> bool {
 }
 
 fn add_comment(token: &Tok, next_token: Option<&Tok>, indent_level: u32, out: &mut Writer) -> bool {
-    out.write_indent(indent_level, token.start);
+    out.write_indent(indent_level);
     let comment = if let &Token::Comment(ref c) = &token.token {
         c
     } else {
@@ -584,12 +576,12 @@ fn add_comment(token: &Tok, next_token: Option<&Tok>, indent_level: u32, out: &m
                 if first {
                     first = false;
                 } else {
-                    out.write_indent(indent_level, token.start);
+                    out.write_indent(indent_level);
                     out.write_new("  ");
                 }
                 out.write_new(line);
             }
-            out.write_indent(indent_level, token.start);
+            out.write_indent(indent_level);
             out.write_new("*/");
             next_token
                 .map(|t| t.start.line != token.start.line)
