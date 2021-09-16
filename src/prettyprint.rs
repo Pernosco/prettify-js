@@ -607,7 +607,7 @@ fn convert_position(pos: Position) -> SourceCoord {
     }
 }
 
-fn convert_token<'a>(item: Item<Token<&'a str>>) -> Tok<'a> {
+fn convert_token<'a>(item: Item<&'a str>) -> Tok<'a> {
     debug!("token: {:?} -> {:?}", item.location.start, item.token);
     Tok {
         token: item.token,
